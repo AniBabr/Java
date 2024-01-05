@@ -1,0 +1,261 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class InvoiceProcessor {
+
+    public static void main(String[] args) {
+        String filePath = "C:\\Users\\GEORGE\\Desktop\\Java Capstone\\InvoiceFormat.txt";
+        String dbUrl = "jdbc:mysql://localhost:3306/sample";
+        String dbUser = "root";
+        String dbPassword = "root";
+
+        try {
+            List<Invoice> invoiceList = readAndProcessFile(filePath);
+            Connection connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            createTable(connection);
+            insertDataAndPopulateList(connection, invoiceList);
+            connection.close();
+            displayInvoiceList(invoiceList);
+
+        } catch (IOException | SQLException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static List<Invoice> readAndProcessFile(String filePath) throws IOException {
+        List<Invoice> invoiceList = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split("  ");
+                Invoice invoice = new Invoice(
+                        Integer.parseInt(values[0]),
+                        values[1],
+                        values[2],
+                        values[3],
+                        Integer.parseInt(values[4]),
+                        Integer.parseInt(values[5]),
+                        values[6],
+                        values[7],
+                        values[8],
+                        values[9],
+                        Integer.parseInt(values[10]),
+                        Integer.parseInt(values[11]),
+                        Integer.parseInt(values[12]),
+                        Integer.parseInt(values[13]),
+                        Integer.parseInt(values[14]),
+                        values[15]
+                );
+                invoiceList.add(invoice);
+            }
+        }
+                        
+
+        return invoiceList;
+    }
+
+    private static void createTable(Connection connection) throws SQLException {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS invoice (" +
+                "invoice_number INT PRIMARY KEY," +
+                "invoice_date VARCHAR(100)," +
+                "shipment_date VARCHAR(100)," +
+                "order_date VARCHAR(100)," +
+                "order_number INT," +
+                "delivery_number INT," +
+                "client_name VARCHAR(100)," +
+                "client_address VARCHAR(100)," +
+                "delivery_address VARCHAR(100)," +
+                "remitto VARCHAR(50)," +
+                "item_number INT," +
+                "quantity INT," +
+                "unit_price INT," +
+                "price INT," +
+                "total_invoice INT," +
+                "status VARCHAR(50))";
+
+        try (PreparedStatement statement = connection.prepareStatement(createTableSQL)) {
+            statement.executeUpdate();
+        }
+    }
+
+    private static void insertDataAndPopulateList(Connection connection, List<Invoice> invoiceList) throws SQLException {
+        String insertDataSQL = "INSERT INTO invoice VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertDataSQL)) {
+            for (Invoice invoice : invoiceList) {
+                preparedStatement.setInt(1, invoice.getInvoiceNumber());
+                preparedStatement.setString(2, invoice.getInvoiceDate());
+                preparedStatement.setString(3, invoice.getShipmentDate());
+                preparedStatement.setString(4, invoice.getOrderDate());
+                preparedStatement.setInt(5, invoice.getOrderNumber());
+                preparedStatement.setInt(6, invoice.getDeliveryNumber());
+                preparedStatement.setString(7, invoice.getClientName());
+                preparedStatement.setString(8, invoice.getClientAddress());
+                preparedStatement.setString(9, invoice.getDeliveryAddress());
+                preparedStatement.setString(10, invoice.getRemitto());
+                preparedStatement.setInt(11, invoice.getItemNumber());
+                preparedStatement.setInt(12, invoice.getQuantity());
+                preparedStatement.setInt(13, invoice.getUnitPrice());
+                preparedStatement.setInt(14, invoice.getPrice());
+                preparedStatement.setInt(15, invoice.getTotalInvoice());
+                preparedStatement.setString(16, invoice.getStatus());
+
+                preparedStatement.executeUpdate();
+            }
+        }
+    }
+
+    private static void displayInvoiceList(List<Invoice> invoiceList) {
+        for (Invoice invoice : invoiceList) {
+            System.out.println(invoice);
+        }
+    }
+}
+
+public class Invoice {
+    private int invoiceNumber;
+    private String invoiceDate;
+    private String shipmentDate;
+    private String orderDate;
+    private int orderNumber;
+    private int DeliveryNumber;
+    private String ClientName;
+    private String ClientAddress;
+    private String DeliveryAddress;
+    private String Remitto;
+    private int ItemNumber;
+    private int Quantity;
+    private int UnitPrice;
+    private int Price;
+    private int TotalInvoice;
+    private String status;
+
+    public Invoice(int invoiceNumber, String value, String s, String string, int i, int parseInt, String value1, String s1, String string1, String value2, int anInt, int parsed, int parsedInt, int i1, int parseInt1, String s2) {
+        this.invoiceNumber = invoiceNumber;
+    }
+    public Invoice(int invoiceDate) {
+        this.invoiceDate = invoiceDate;
+    }
+    public Invoice(String shipmentDate) {
+        this.shipmentDate = shipmentDate;
+    }
+    public Invoice(String orderDate) {
+        this.orderDate = orderDate;
+    }
+    public Invoice(int orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+    public Invoice(int DeliveryNumber) {
+        this.DeliveryNumber = DeliveryNumber;
+    }
+    public Invoice(String ClientName) {
+        this.ClientName = ClientName;
+    }
+    public Invoice(String ClientAddress) {
+        this.ClientAddress = ClientAddress;
+    }
+    public Invoice(String DeliveryAddress) {
+        this.DeliveryAddress = DeliveryAddress;
+    }
+    public Invoice(String Remitto) {
+        this.Remitto = Remitto;
+    }
+    public Invoice(int ItemNumber) {
+        this.ItemNumber = ItemNumber;
+    }
+    public Invoice(int Quantity) {
+        this.Quantity = Quantity;
+    }
+    public Invoice(int UnitPrice) {
+        this.UnitPrice = UnitPrice;
+    }
+    public Invoice(int Price) {
+        this.Price = Price;
+    }
+    public Invoice(int TotalInvoice) {
+        this.TotalInvoice = TotalInvoice;
+    }
+    public Invoice(String status) {
+        this.status = status;
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "Invoice{" +
+                "invoiceNumber=" + invoiceNumber +
+                ", invoiceDate='" + invoiceDate + '\'' +
+                ", shipmentDate='" + shipmentDate + '\'' +
+                ", orderDate='" + orderDate + '\'' +
+                ", orderNumber=" + orderNumber + '\'' +
+                ", DeliveryNumber=" + DeliveryNumber + '\'' +
+                ", ClientName=" + ClientName + '\'' +
+                ", ClientAddress=" + ClientAddress + '\'' +
+                ", DeliveryAddress=" + DeliveryAddress + '\'' +
+                ", Remitto=" + Remitto + '\'' +
+                ", ItemNumber=" + ItemNumber + '\'' +
+                ", Quantity=" + Quantity + '\'' +
+                ", UnitPrice=" + UnitPrice + '\'' +
+                ", Price=" + Price + '\'' +
+                ", TotalInvoice=" + TotalInvoice + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
+    public int getInvoiceNumber() {
+        return invoiceNumber;
+    }
+    public String getInvoiceDate() {
+        return invoiceDate;
+    }
+    public String getShipmentDate() {
+        return shipmentDate;
+    }
+    public String getOrderDate() {
+        return orderDate;
+    }
+    public int getOrderNumber() {
+        this.orderNumber = orderNumber;
+    }
+    public int getDeliveryNumber() {
+        return DeliveryNumber;
+    }
+    public String getClientName() {
+        return ClientName;
+    }
+    public String getClientAddress() {
+        return ClientAddress;
+    }
+    public String getDeliveryAddress() {
+        return DeliveryAddress;
+    }
+    public String getRemitto() {
+        return Remitto;
+    }
+    public int getItemNumber() {
+        return ItemNumber;
+    }
+    public int getQuantity() {
+        return Quantity;
+    }
+    public int getUnitPrice() {
+        return UnitPrice;
+    }
+    public int getPrice() {
+        return Price;
+    }
+    public int getTotalInvoice() {
+        return TotalInvoice;
+    }
+    public String getStatus() {
+        return status;
+    }
+}
